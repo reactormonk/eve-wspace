@@ -328,9 +328,16 @@ class RouteFinder(object):
     def route(self, sys1, sys2):
         from Map.models import KSystem
         return [KSystem.objects.get(pk=sysid) for sysid in self._find_route(sys1, sys2)]
-
+        
     def route_length(self, sys1, sys2):
-        return len(self._find_route(sys1, sys2))
+        key = self._route_key(sys1, sys2)
+        cached_length = cache.get(key)
+        if cached_length == None:
+            length = len(self._find_route(sys1, sys2))
+            cache.set(key, str(length), None)
+        else:
+            length = int(cached_length)
+        return length
 
     def _cache_graph(self):
         from Map.models import KSystem
@@ -361,3 +368,9 @@ class RouteFinder(object):
             else:
                 self.graph = cPickle.loads(cache.get('route_graph'))
         return nx.shortest_path(self.graph, source=sys1.pk, target=sys2.pk)
+
+    def _route_key(self, sys1, sys2):
+        names = [str(sys1.pk), str(sys2.pk)]
+        names.sort()
+        return "route_key:" + "|".join(names)
+
