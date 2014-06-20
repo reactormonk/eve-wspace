@@ -1,0 +1,19 @@
+<div class="numberOfJumps">{{jumps}} Jump{{jumps|:"s"}}</div>
+<table class="routeBetween">
+    <tr>
+        <th></th>
+        <th>System</th>
+        {% if is_igb_trusted %}
+        <th>Autopilot</th>
+        {% endif %}
+    </tr>
+    {% for wayness, system in steps %}
+        <tr>
+            <td>{{wayness}}</td>
+            <td>{{system.name}}</td>
+            {% if is_igb_trusted %}
+            <td><button class='btn btn-mini btn-info' onclick="CCPEVE.setDestination({{dest.pk}});">D</button>&nbsp<button class='btn btn-mini btn-info' onclick="CCPEVE.addWaypoint({{dest.pk}});">W</button></td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+</table>

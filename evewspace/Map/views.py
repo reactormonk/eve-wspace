@@ -1160,3 +1160,50 @@ def purge_signatures(request, map_id, ms_id):
         return HttpResponse()
     else:
         return HttpResponse(status=400)
+        
+def find_borders(L):
+    it = iter(L)
+    start_none = False
+    for item in it:
+        if item is None:
+            start_none = True
+            continue
+        if start_none:
+            start = item
+        else:
+            start = None
+        end = item
+        end_none = False
+        for item in it:
+            if item is None:
+                end_none = True
+                break
+            end = item
+        if not end_none:
+            end = None
+        yield (start, end)
+        start_none = end_none
+        
+def resolve_system(name_or_pk_or_friendly, sysmap):
+        
+@require_map_permission(permission=1)
+def route_between(request, map_id, start, end):
+    from itertools import groupby
+    if not request.is_ajax():
+        raise PermissionDenied
+    mapsys = get_object_or_404(MapSystem, pk=ms_id)
+    rf = utils.RouteFinder().with_map(mapsys)
+    route = rf.route_as_ids(start, end)
+    id_to_mapsystem = {sys.system.pk: sys for sys in mapsys.systems.all()}
+    map_route = list()
+    for sysid in route:
+        try:
+            map_route.append(id_to_mapsystem(sysid))
+        except KeyError:
+            map_route.append(None)
+    steps = list()
+    for entry, out in find_borders(map_route):
+        if entry is not None:
+            steps.append(('Enter via', entry.system)))
+        if out is not None:
+            steps.append(('Exit via', out.system)))

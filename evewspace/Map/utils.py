@@ -345,13 +345,8 @@ class RouteFinder(object):
                     graph.add_edge(from_system.pk, to_system.tosystem)
             cache.set('route_graph', cPickle.dumps(graph, cPickle.HIGHEST_PROTOCOL), 0)
             self.graph = graph
-
-    def _find_route(self, sys1, sys2):
-        """
-        Takes two system objects (can be KSystem or SystemData).
-        Returns a list of system IDs that comprise the route.
-        """
-        import networkx as nx
+            
+    def _maybe_load_graph(self):
         import cPickle
         if not self.graph:
             if not cache.get('route_graph'):
@@ -360,4 +355,19 @@ class RouteFinder(object):
                 self.graph = cPickle.loads(cache.get('route_graph'))
             else:
                 self.graph = cPickle.loads(cache.get('route_graph'))
+                
+    def with_map(self, systemmap):
+        self._maybe_load_graph()
+        for mapsystem in systemmap.systems.all():
+            if mapsystem.parentsystem and not mapsystem.parent_wormhole.collapsed:
+                self.graph.add_edge(mapsystem.system.pk, mapsystem.parentsystem.system.pk)
+        return self
+
+    def _find_route(self, sys1, sys2):
+        """
+        Takes two system objects (can be KSystem or SystemData).
+        Returns a list of system IDs that comprise the route.
+        """
+        import networkx as nx
+        self._maybe_load_graph()
         return nx.shortest_path(self.graph, source=sys1.pk, target=sys2.pk)

@@ -60,6 +60,7 @@ mappatterns = patterns('Map.views',
         url(r'^wormhole/tooltips/$', 'wormhole_tooltips'),
         url(r'^wormhole/(?P<wh_id>\d+)/', include(wormholepatterns)),
         url(r'^settings/$', 'map_settings'),
+        url(r'^route_between/(.+)/(.+)$', 'route_between'),
         )
 
 spawnspatterns = patterns('Map.views',

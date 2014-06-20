@@ -171,6 +171,12 @@ class System(SystemData):
 
     def clear_sig_cache(self):
         cache.delete('sys_%s_sig_list' % self.pk)
+        
+    def defining_name(self):
+        if not self.friendlyname is None or self.friendlyname == "":
+            return self.friendlyname
+        else:
+            return self.system.name
 
 
 class KSystem(System):
